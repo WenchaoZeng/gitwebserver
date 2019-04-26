@@ -74,8 +74,9 @@ public class GitWebServer {
                     return;
                 }
 
-                if (path.equals("/favicon.ico") || path.contains("favicon.ico")) {
+                if (path.contains("favicon.ico")) {
                     send(t, 404, "File not found.".getBytes());
+                    return;
                 }
 
                 // 处理静态文件
@@ -84,8 +85,12 @@ public class GitWebServer {
                 return;
             } catch (Exception ex) {
                 if (!ex.getMessage().contains("Broken pipe")) {
-                    Log.error(ex);
-                    send(t, 500, "Server error".getBytes());
+                    try {
+                        Log.error(ex);
+                        send(t, 500, "Server error".getBytes());
+                    } catch (Exception ex2) {
+                        Log.error(ex2);
+                    }
                 }
             }
         }
@@ -118,6 +123,11 @@ public class GitWebServer {
                 Log.error("%s type not found.", filePath);
             }
 
+            // 允许缓存
+            t.getResponseHeaders().add("ETag", "5cc2b7c7-160f9");
+            t.getResponseHeaders().add("Last-Modified", "Fri, 26 Apr 2019 07:48:23 GMT");
+            t.getResponseHeaders().add("Cache-Control", "max-age=31536000");
+
             send(t, bytes);
         }
 
@@ -134,6 +144,7 @@ public class GitWebServer {
             t.sendResponseHeaders(code, bytes.length);
             OutputStream os = t.getResponseBody();
             os.write(bytes);
+            os.flush();
             os.close();
         }
     }
