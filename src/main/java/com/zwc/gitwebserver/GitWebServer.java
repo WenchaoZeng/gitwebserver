@@ -70,7 +70,8 @@ public class GitWebServer {
                 // 首页
                 if (path.equals("/index.html")) {
                     t.getResponseHeaders().add("content-type", fileHeaders.get(".html"));
-                    send(t, "hello");
+                    String testUrl = Global.url.replace("index.html", "raw.githubusercontent.com/WenchaoZeng/gitwebserver/4e8c6df/web/index.html");
+                    send(t, "示例网页: <a target='_blank' href='" + testUrl + "'>" + testUrl + "</a>");
                     return;
                 }
 
